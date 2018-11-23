@@ -10,17 +10,29 @@ class NeuralNetwork:
         self.w1 = np.random.randn(h_size, i_size)
         self.w2 = np.random.randn(o_size, h_size)
 
-    def train(self, X, y):
+    def train(self, X, y, epochs=30):
         self.X = X
         self.y = y
+        errors = []
 
-        # feed forward
-        z1, a1, z2, a2 = self.feed_forward(X)
-        grad_weights, grad_biases = self.back_propagate(z1, a1, z2, a2, X, y)
-        print(grad_weights)
+        for i in range(epochs):
+            # feed forward
+            errors.append(self.total_error(X, y))
+            z1, a1, z2, a2 = self.feed_forward(X)
+            grad_weights, grad_biases = self.back_propagate(z1, a1, z2, a2, X, y)
 
-    def total_error(self, output):
-        return np.square(self.training - output).sum()
+            # update weights and biases
+            self.w1 -= grad_weights[0]
+            self.w2 -= grad_weights[1]
+
+            self.b1 -= grad_biases[0]
+            self.b2 -= grad_biases[1]
+
+        print(errors)
+
+    def total_error(self, X, y):
+        output = self.feed_forward(X)[3]
+        return np.square(y - output).sum()
 
     def feed_forward(self, X):
         """
