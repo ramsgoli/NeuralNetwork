@@ -1,4 +1,5 @@
 from neuralnetwork import NeuralNetwork
+#from masternetwork import Network
 import numpy as np
 from sklearn import datasets
 import matplotlib.pyplot as plt
@@ -14,4 +15,7 @@ def generate_test_dataset():
 if __name__ == '__main__':
     # generate_test_dataset()
     network = NeuralNetwork(2, 3, 2)
-    print(network.feed_forward(np.array([1, 2])))
+    X = np.array([[1], [2]])
+    y = np.array([[0.99], [0.01]])
+
+    network.train(X, y)
