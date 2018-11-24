@@ -10,30 +10,41 @@ class NeuralNetwork:
         self.w1 = np.random.randn(i_size, h_size)
         self.w2 = np.random.randn(h_size, o_size)
 
-    def SGD(self, X, y, batch_size, epochs=30, eta=3.0):
-        pass
+    def SGD(self, X, y, batch_size, epochs=30, eta=3.0, debug=False):
+        n = len(X)
 
-    def train(self, X, y, epochs=30, eta=3.0):
-        X, y = shuffle(X, y)
-        errors = []
+        for x in range(epochs):
+            X_train, y_train = shuffle(X, y)
+            if debug:
+                print("Error: {}".format(self.total_error(X_train, y_train)))
 
-        for i in range(epochs):
-            # feed forward
-            errors.append(self.total_error(X, y))
+            for k in range(0, n, batch_size):
+                batch = [X_train[k:k+batch_size], y_train[k:k+batch_size]]
+                self.update_mini_batch(batch, eta)
 
-            for X_train, y_train in zip(X, y):
-                X_train, y_train = X_train.reshape(1, len(X_train)), y_train.reshape(1, len(y_train))
-                z1, a1, z2, a2 = self.feed_forward(X_train)
-                grad_weights, grad_biases = self.back_propagate(z1, a1, z2, a2, X_train, y_train)
+    def update_mini_batch(self, batch, eta):
+        nabla_d_1 = np.zeros(self.w1.shape)
+        nabla_d_2 = np.zeros(self.w2.shape)
+        nabla_b_1 = np.zeros(self.b1.shape)
+        nabla_b_2 = np.zeros(self.b2.shape)
 
-                # update weights and biases
-                self.w1 -= eta * grad_weights[0]
-                self.w2 -= eta * grad_weights[1]
+        for X_train, y_train in zip(batch[0], batch[1]):
+            X_train, y_train = X_train.reshape(1, len(X_train)), y_train.reshape(1, len(y_train))
+            z1, a1, z2, a2 = self.feed_forward(X_train)
+            grad_weights, grad_biases = self.back_propagate(z1, a1, z2, a2, X_train, y_train)
 
-                self.b1 -= eta * grad_biases[0]
-                self.b2 -= eta * grad_biases[1]
+            nabla_d_1 += grad_weights[0]
+            nabla_d_2 += grad_weights[1]
+            nabla_b_1 += grad_biases[0]
+            nabla_b_2 += grad_biases[1]
 
-        #print(errors)
+        # update weights and biases
+        self.w1 -= eta * nabla_d_1
+        self.w2 -= eta * nabla_d_2
+
+        self.b1 -= eta * nabla_b_1
+        self.b2 -= eta * nabla_b_2
+
 
     def total_error(self, X, y):
         output = self.feed_forward(X)[3]
