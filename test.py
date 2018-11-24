@@ -15,10 +15,7 @@ def generate_test_dataset():
 if __name__ == '__main__':
     # generate_test_dataset()
     X_train, y_train, X_test, y_test = mnist_loader.load_data_wrapper()
-    print(X_train.shape, X_test.shape)
 
     network = NeuralNetwork(784, 30, 10)
-
     network.SGD(X_train, y_train, 10, 30, 3.0, X_test=X_test, y_test=y_test)
 
-    # network.fit(np.array([[0, 35], [4, 1]]))
