@@ -1,7 +1,7 @@
-from neuralnetwork import NeuralNetwork
+from neuralnetwork import NeuralNetwork, shuffle
+import mnist_loader
 #from masternetwork import Network
 import numpy as np
-from sklearn import datasets
 import matplotlib.pyplot as plt
 
 def generate_test_dataset():
@@ -14,10 +14,11 @@ def generate_test_dataset():
 
 if __name__ == '__main__':
     # generate_test_dataset()
-    network = NeuralNetwork(2, 3, 2)
-    X_train = np.array([[5, 2], [5, 3], [0, 33], [1, 35]])
-    y_train = np.array([[0.99, 0.01], [0.98, 0.02], [0.01, 0.99], [0.01, 0.98]])
+    X_train, y_train, X_test, y_test = mnist_loader.load_data_wrapper()
+    print(X_train.shape, X_test.shape)
 
-    network.SGD(X_train, y_train, 5, debug=True)
+    network = NeuralNetwork(784, 30, 10)
 
-    network.fit(np.array([[0, 35], [4, 1]]))
+    network.SGD(X_train, y_train, 10, 30, 3.0, X_test=X_test, y_test=y_test)
+
+    # network.fit(np.array([[0, 35], [4, 1]]))

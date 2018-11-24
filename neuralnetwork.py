@@ -10,7 +10,7 @@ class NeuralNetwork:
         self.w1 = np.random.randn(i_size, h_size)
         self.w2 = np.random.randn(h_size, o_size)
 
-    def SGD(self, X, y, batch_size, epochs=30, eta=3.0, debug=False):
+    def SGD(self, X, y, batch_size, epochs=30, eta=3.0, debug=False, X_test=None, y_test=None):
         n = len(X)
 
         for x in range(epochs):
@@ -21,6 +21,10 @@ class NeuralNetwork:
             for k in range(0, n, batch_size):
                 batch = [X_train[k:k+batch_size], y_train[k:k+batch_size]]
                 self.update_mini_batch(batch, eta)
+
+            if X_test is not None and y_test is not None:
+                print("Epoch {}: correct predictions: {}/{}".format(x, self.evaluate(X_test, y_test), X_test.shape[0]))
+
 
     def update_mini_batch(self, batch, eta):
         nabla_d_1 = np.zeros(self.w1.shape)
@@ -50,6 +54,7 @@ class NeuralNetwork:
         output = self.feed_forward(X)[3]
         return np.square(y - output).sum() / (2 * len(X))
 
+
     def feed_forward(self, X):
         """
         Returns the activations of a single training example
@@ -59,6 +64,7 @@ class NeuralNetwork:
         z2 = np.dot(a1, self.w2) + self.b2
         a2 = sigmoid(z2)
         return z1, a1, z2, a2
+
 
     def back_propagate(self, z1, a1, z2, a2, inputs, y):
         delta_2 = (a2 - y) * sigmoid_prime(z2)
@@ -73,8 +79,15 @@ class NeuralNetwork:
 
         return partials_weights, partials_biases
 
+
     def fit(self, X):
-        print(self.feed_forward(X)[3])
+        z1, a1, z2, a2 = self.feed_forward(X)
+        return a2
+
+    def evaluate(self, X_test, y_test):
+        test_results = [(np.argmax(self.fit(X)), y) for X, y in zip(X_test, y_test)]
+        return sum(int(x==y) for x, y in test_results)
+
 
 def sigmoid(x):
     return 1 / (1 + np.exp(-x))
