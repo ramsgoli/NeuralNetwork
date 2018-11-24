@@ -32,6 +32,8 @@ class NeuralNetwork:
         nabla_b_1 = np.zeros(self.b1.shape)
         nabla_b_2 = np.zeros(self.b2.shape)
 
+        len_batch = len(batch[0])
+
         for X_train, y_train in zip(batch[0], batch[1]):
             X_train, y_train = X_train.reshape(1, len(X_train)), y_train.reshape(1, len(y_train))
             z1, a1, z2, a2 = self.feed_forward(X_train)
@@ -43,11 +45,11 @@ class NeuralNetwork:
             nabla_b_2 += grad_biases[1]
 
         # update weights and biases
-        self.w1 -= eta * nabla_d_1
-        self.w2 -= eta * nabla_d_2
+        self.w1 -= (eta/len_batch) * nabla_d_1
+        self.w2 -= (eta/len_batch) * nabla_d_2
 
-        self.b1 -= eta * nabla_b_1
-        self.b2 -= eta * nabla_b_2
+        self.b1 -= (eta/len_batch) * nabla_b_1
+        self.b2 -= (eta/len_batch) * nabla_b_2
 
 
     def total_error(self, X, y):
