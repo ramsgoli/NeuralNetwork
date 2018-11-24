@@ -37,7 +37,6 @@ class NeuralNetwork:
 
     def total_error(self, X, y):
         output = self.feed_forward(X)[3]
-        print(output, y)
         return np.square(y - output).sum() / (2 * len(X))
 
     def feed_forward(self, X):
@@ -64,7 +63,7 @@ class NeuralNetwork:
         return partials_weights, partials_biases
 
     def fit(self, X):
-        return feed_forward(X)
+        print(self.feed_forward(X)[3])
 
 def sigmoid(x):
     return 1 / (1 + np.exp(-x))

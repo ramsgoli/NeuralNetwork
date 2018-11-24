@@ -15,7 +15,9 @@ def generate_test_dataset():
 if __name__ == '__main__':
     # generate_test_dataset()
     network = NeuralNetwork(2, 3, 2)
-    X_train = np.arange(20).reshape(10, 2)
-    y_train = np.arange(20).reshape(10, 2)
+    X_train = np.array([[5, 2], [5, 3], [0, 33], [1, 35]])
+    y_train = np.array([[0.99, 0.01], [0.98, 0.02], [0.01, 0.99], [0.01, 0.98]])
 
     network.train(X_train, y_train)
+
+    network.fit(np.array([0, 35]).reshape(1, 2))
