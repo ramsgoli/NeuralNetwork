@@ -10,7 +10,10 @@ class NeuralNetwork:
         self.w1 = np.random.randn(h_size, i_size)
         self.w2 = np.random.randn(o_size, h_size)
 
-    def train(self, X, y, epochs=30):
+    def SGD(self, X, y, batch_size, epochs=30, eta=3.0):
+        pass
+
+    def train(self, X, y, epochs=30, eta=0.5):
         self.X = X
         self.y = y
         errors = []
@@ -22,11 +25,11 @@ class NeuralNetwork:
             grad_weights, grad_biases = self.back_propagate(z1, a1, z2, a2, X, y)
 
             # update weights and biases
-            self.w1 -= grad_weights[0]
-            self.w2 -= grad_weights[1]
+            self.w1 -= eta * grad_weights[0]
+            self.w2 -= eta * grad_weights[1]
 
-            self.b1 -= grad_biases[0]
-            self.b2 -= grad_biases[1]
+            self.b1 -= eta * grad_biases[0]
+            self.b2 -= eta * grad_biases[1]
 
         print(errors)
 
@@ -38,7 +41,7 @@ class NeuralNetwork:
         """
         Returns the activations of a single training example
         """
-        z1 = np.dot(self.w1, X) + self.b1
+        z1 = np.dot(self.w1, X.T) + self.b1
         a1 = sigmoid(z1)
         z2 = np.dot(self.w2, a1) + self.b2
         a2 = sigmoid(z2)
@@ -50,7 +53,7 @@ class NeuralNetwork:
         partial_b2 = delta_2
         partial_b1 = delta_1
         partial_w2 = np.dot(delta_2, a1.T)
-        partial_w1 = np.dot(delta_1, inputs.T)
+        partial_w1 = np.dot(delta_1, inputs)
 
         partials_weights = [partial_w1, partial_w2]
         partials_biases = [partial_b1, partial_b2]
