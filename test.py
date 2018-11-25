@@ -17,5 +17,5 @@ if __name__ == '__main__':
     X_train, y_train, X_test, y_test = mnist_loader.load_data_wrapper()
 
     network = NeuralNetwork(784, 30, 10)
-    network.SGD(X_train, y_train, 10, 30, 3.0, X_test=X_test, y_test=y_test)
+    network.SGD(X_train, y_train, 10, 30, 0.5, X_test=X_test, y_test=y_test)
 

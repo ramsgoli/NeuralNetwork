@@ -64,12 +64,13 @@ class NeuralNetwork:
         z1 = np.dot(X, self.w1) + self.b1
         a1 = sigmoid(z1)
         z2 = np.dot(a1, self.w2) + self.b2
-        a2 = sigmoid(z2)
+        # a2 = sigmoid(z2)
+        a2 = self.softmax(z2)
         return z1, a1, z2, a2
 
 
     def back_propagate(self, z1, a1, z2, a2, inputs, y):
-        delta_2 = (a2 - y) * sigmoid_prime(z2)
+        delta_2 = a2 - y  # using log-likelihood
         delta_1 = np.dot(delta_2, self.w2.T) * sigmoid_prime(z1)
         partial_b2 = delta_2
         partial_b1 = delta_1
@@ -80,6 +81,18 @@ class NeuralNetwork:
         partials_biases = [partial_b1, partial_b2]
 
         return partials_weights, partials_biases
+
+
+    def softmax(self, z2):
+        
+        return np.exp(z2) / np.sum(np.exp(z2), axis=1).reshape(len(z2))
+
+
+    def cross_entropy_cost(self, X, y):
+        a = self.fit(X)
+        cost = -np.sum(y * np.log(a) + (1 - y)*np.log(1-a))
+
+        return cost/X.shape(0)
 
 
     def fit(self, X):
