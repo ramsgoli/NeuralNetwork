@@ -65,7 +65,7 @@ class NeuralNetwork:
         a1 = sigmoid(z1)
         z2 = np.dot(a1, self.w2) + self.b2
         # a2 = sigmoid(z2)
-        a2 = self.softmax(z2)
+        a2 = softmax(z2)
         return z1, a1, z2, a2
 
 
@@ -83,14 +83,9 @@ class NeuralNetwork:
         return partials_weights, partials_biases
 
 
-    def softmax(self, z2):
-        
-        return np.exp(z2) / np.sum(np.exp(z2), axis=1).reshape(len(z2))
-
-
     def cross_entropy_cost(self, X, y):
         a = self.fit(X)
-        cost = -np.sum(y * np.log(a) + (1 - y)*np.log(1-a))
+        cost = -np.sum(y * np.log(a))
 
         return cost/X.shape(0)
 
@@ -103,6 +98,9 @@ class NeuralNetwork:
         test_results = [(np.argmax(self.fit(X)), y) for X, y in zip(X_test, y_test)]
         return sum(int(x==y) for x, y in test_results)
 
+
+def softmax(self, z2):
+    return np.exp(z2) / np.sum(np.exp(z2), axis=1).reshape(len(z2))
 
 def sigmoid(x):
     return 1 / (1 + np.exp(-x))
