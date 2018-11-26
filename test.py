@@ -14,8 +14,15 @@ def generate_test_dataset():
 
 if __name__ == '__main__':
     # generate_test_dataset()
-    X_train, y_train, X_test, y_test = mnist_loader.load_data_wrapper()
+    train, validation, test = mnist_loader.load_data_wrapper()
+    X_train, y_train = train[0], train[1]
+    X_validate, y_validate = validation[0], validation[1]
+    X_test, y_test = test[0], test[1]
 
     network = NeuralNetwork(784, 30, 10)
-    network.SGD(X_train, y_train, 10, 30, 0.5, X_test=X_test, y_test=y_test)
+    network.SGD(X_train, y_train, 10, 30, 0.5, l2=0.5, X_test=X_test, y_test=y_test)
+
+    # plot accuracies on test data
+    plt.plot(network.test_accuracies)
+    plt.show()
 

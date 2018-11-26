@@ -9,24 +9,41 @@ class NeuralNetwork:
         self.b2 = np.random.randn(1, o_size)
         self.w1 = np.random.randn(i_size, h_size)
         self.w2 = np.random.randn(h_size, o_size)
+        self.test_accuracies = []
 
-    def SGD(self, X, y, batch_size, epochs=30, eta=3.0, debug=False, X_test=None, y_test=None):
+
+    def SGD(self, X, y,
+            batch_size=10,
+            epochs=30,
+            eta=3.0,
+            l2=0,
+            X_test=None,
+            y_test=None,
+            debug=True):
+
         n = len(X)
 
         for x in range(epochs):
-            X_train, y_train = shuffle(X, y)
             if debug:
-                print("Error: {}".format(self.total_error(X_train, y_train)))
+                print("Training Epoch #{}".format(x))
+
+            X_train, y_train = shuffle(X, y)
 
             for k in range(0, n, batch_size):
                 batch = [X_train[k:k+batch_size], y_train[k:k+batch_size]]
-                self.update_mini_batch(batch, eta)
+                self.update_mini_batch(batch, eta, l2, n)
 
             if X_test is not None and y_test is not None:
-                print("Epoch {}: correct predictions: {}/{}".format(x, self.evaluate(X_test, y_test), X_test.shape[0]))
+                num_correct = self.evaluate(X_test, y_test)
+                total = X_test.shape[0]
+
+                print("Epoch {}: correct predictions: {}/{}".format(x, num_correct, total))
+                self.test_accuracies.append(num_correct/total)
+
+        print("Done training")
 
 
-    def update_mini_batch(self, batch, eta):
+    def update_mini_batch(self, batch, eta, l2, n):
         nabla_d_1 = np.zeros(self.w1.shape)
         nabla_d_2 = np.zeros(self.w2.shape)
         nabla_b_1 = np.zeros(self.b1.shape)
@@ -44,17 +61,12 @@ class NeuralNetwork:
             nabla_b_1 += grad_biases[0]
             nabla_b_2 += grad_biases[1]
 
-        # update weights and biases
-        self.w1 -= (eta/len_batch) * nabla_d_1
-        self.w2 -= (eta/len_batch) * nabla_d_2
+        # update weights and biases with regularization
+        self.w1 = (1 - eta*l2/n) * self.w1 - (eta/len_batch) * nabla_d_1
+        self.w2 = (1 - eta*l2/n) * self.w2 - (eta/len_batch) * nabla_d_2
 
-        self.b1 -= (eta/len_batch) * nabla_b_1
-        self.b2 -= (eta/len_batch) * nabla_b_2
-
-
-    def total_error(self, X, y):
-        output = self.feed_forward(X)[3]
-        return np.square(y - output).sum() / (2 * len(X))
+        self.b1 += (eta/len_batch) * nabla_b_1
+        self.b2 += (eta/len_batch) * nabla_b_2
 
 
     def feed_forward(self, X):
@@ -70,8 +82,9 @@ class NeuralNetwork:
 
 
     def back_propagate(self, z1, a1, z2, a2, inputs, y):
-        delta_2 = a2 - y  # using log-likelihood
+        delta_2 = a2 - y  # using log-likelihood/cross-entropy
         delta_1 = np.dot(delta_2, self.w2.T) * sigmoid_prime(z1)
+
         partial_b2 = delta_2
         partial_b1 = delta_1
         partial_w2 = np.dot(a1.T, delta_2)
@@ -94,12 +107,13 @@ class NeuralNetwork:
         z1, a1, z2, a2 = self.feed_forward(X)
         return a2
 
+
     def evaluate(self, X_test, y_test):
         test_results = [(np.argmax(self.fit(X)), y) for X, y in zip(X_test, y_test)]
         return sum(int(x==y) for x, y in test_results)
 
 
-def softmax(self, z2):
+def softmax(z2):
     return np.exp(z2) / np.sum(np.exp(z2), axis=1).reshape(len(z2))
 
 def sigmoid(x):
