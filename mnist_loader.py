@@ -68,12 +68,17 @@ def load_data_wrapper():
     tr_d, va_d, te_d = load_data()
     training_inputs = np.array(tr_d[0])
     training_results = np.array([vectorized_result(y) for y in tr_d[1]])
-    training_data = zip(training_inputs, training_results)
-    validation_inputs = [np.reshape(x, (784, 1)) for x in va_d[0]]
-    validation_data = zip(validation_inputs, va_d[1])
+    training_data = [training_inputs, training_results]
+
+    validation_inputs = np.array(va_d[0])
+    validation_results = va_d[1]
+    validation_data = [validation_inputs, validation_results]
+
     test_inputs = np.array(te_d[0])
     test_results = te_d[1]
-    return training_inputs, training_results, test_inputs, test_results
+    test_data = [test_inputs, test_results]
+
+    return training_data, validation_data, test_data
 
 def vectorized_result(j):
     """Return a 10-dimensional unit vector with a 1.0 in the jth
