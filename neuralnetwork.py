@@ -17,11 +17,13 @@ class NeuralNetwork:
             epochs=30,
             eta=3.0,
             l2=0,
+            dropout=False,
             X_test=None,
             y_test=None,
             debug=True):
 
         n = len(X)
+        self.dropout = dropout
 
         for x in range(epochs):
             if debug:
@@ -50,10 +52,12 @@ class NeuralNetwork:
         nabla_b_2 = np.zeros(self.b2.shape)
 
         len_batch = len(batch[0])
+        if self.dropout:
+            self.dropout_filter = np.random.binomial(1, 0.5, size=(1, self.h_size))
 
         for X_train, y_train in zip(batch[0], batch[1]):
             X_train, y_train = X_train.reshape(1, len(X_train)), y_train.reshape(1, len(y_train))
-            z1, a1, z2, a2 = self.feed_forward(X_train)
+            z1, a1, z2, a2 = self.feed_forward(X_train, training=True)
             grad_weights, grad_biases = self.back_propagate(z1, a1, z2, a2, X_train, y_train)
 
             nabla_d_1 += grad_weights[0]
@@ -69,12 +73,19 @@ class NeuralNetwork:
         self.b2 += (eta/len_batch) * nabla_b_2
 
 
-    def feed_forward(self, X):
+    def feed_forward(self, X, training=False):
         """
         Returns the activations of a single training example
         """
         z1 = np.dot(X, self.w1) + self.b1
         a1 = sigmoid(z1)
+
+        if training and self.dropout:
+            a1 = a1 * self.dropout_filter
+
+        if not training and self.dropout:
+            a1 = 0.5 * a1
+
         z2 = np.dot(a1, self.w2) + self.b2
         # a2 = sigmoid(z2)
         a2 = softmax(z2)
@@ -104,7 +115,7 @@ class NeuralNetwork:
 
 
     def fit(self, X):
-        z1, a1, z2, a2 = self.feed_forward(X)
+        z1, a1, z2, a2 = self.feed_forward(X, training=False)
         return a2
 
 
